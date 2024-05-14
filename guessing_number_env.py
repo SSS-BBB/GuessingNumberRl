@@ -4,8 +4,8 @@ from gymnasium import spaces
 import random
 from collections import deque
 
-LAST_NUM = 10_000
-LAST_GUESSES_LEN = 100
+LAST_NUM = 1_000
+LAST_GUESSES_LEN = 10
 MAX_GUESSES = 15
 
 class GuessNumEnv(gym.Env):
@@ -80,7 +80,8 @@ class GuessNumEnv(gym.Env):
         else:
             # self.reward = -abs(self.the_num - guess_num)
             if self.total_guesses <= MAX_GUESSES:
-                self.reward = 1 / abs(self.the_num - guess_num)
+                divider = abs(self.the_num - guess_num) / 10
+                self.reward = 1 / divider
                 self.done = False
             else:
                 self.reward = -100
