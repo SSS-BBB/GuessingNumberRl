@@ -4,8 +4,9 @@ from gymnasium import spaces
 import random
 from collections import deque
 
-LAST_NUM = pow(2, 60)
+LAST_NUM = 10_000
 LAST_GUESSES_LEN = 100
+MAX_GUESSES = 15
 
 class GuessNumEnv(gym.Env):
 
@@ -24,6 +25,7 @@ class GuessNumEnv(gym.Env):
     def step(self, action):
         # action -> the number you guess
         self.last_guesses.append(action)
+        self.total_guesses += 1
 
         if self.the_num < action:
             self.num_state = -1
@@ -46,7 +48,7 @@ class GuessNumEnv(gym.Env):
                     "last_states": list(self.last_states)
                }
 
-        return self.observation, self.reward, self.done, False, info
+        return self.observation, self.reward, self.done, self.truncated, info
 
     def reset(self, seed=None, options=None):
         # -1 the number is lower than the number you guess
@@ -54,6 +56,7 @@ class GuessNumEnv(gym.Env):
         # 1 the number is greater than the number you guess
         self.num_state = -2
         self.the_num = random.randint(0, LAST_NUM)
+        self.total_guesses = 0
 
         self.last_guesses = deque(maxlen=LAST_GUESSES_LEN)
         self.last_states = deque(maxlen=LAST_GUESSES_LEN)
@@ -70,13 +73,19 @@ class GuessNumEnv(gym.Env):
         self.observation = np.array([self.num_state] + list(self.last_guesses) + list(self.last_states))
 
     def set_reward(self, guess_num):
+        self.truncated = False
         if (self.num_state == 0):
             self.reward = 500
             self.done = True
         else:
             # self.reward = -abs(self.the_num - guess_num)
-            self.reward = -1
-            self.done = False
+            if self.total_guesses <= MAX_GUESSES:
+                self.reward = -1
+                self.done = False
+            else:
+                self.reward = -100
+                self.done = True
+                self.truncated = True
 
         self.reward = float(self.reward)
 
