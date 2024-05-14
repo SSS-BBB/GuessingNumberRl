@@ -1,4 +1,4 @@
-from sbx import PPO
+from stable_baselines3 import PPO
 import os
 import time
 from guessing_number_env import GuessNumEnv

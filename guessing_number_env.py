@@ -80,7 +80,7 @@ class GuessNumEnv(gym.Env):
         else:
             # self.reward = -abs(self.the_num - guess_num)
             if self.total_guesses <= MAX_GUESSES:
-                self.reward = -1
+                self.reward = 1 / abs(self.the_num - guess_num)
                 self.done = False
             else:
                 self.reward = -100
